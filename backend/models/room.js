@@ -1,8 +1,30 @@
 const mongoose = require('mongoose');
 
+// Define the schema for rooms
 const roomSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
-    members: { type: [String], default: [] }, // List of user names or IDs
+  roomid: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  roomName: {
+    type: String,
+    required: false
+  },
+  host: {
+    type: String,
+    required: true
+  },
+  presenter: {
+    type: String,
+    required: false
+  },
+  players: [{
+    type: String // List of player usernames in the room
+  }],
 });
 
-module.exports = mongoose.model('Room', roomSchema);
+// Create the model
+const Room = mongoose.model('Room', roomSchema);
+
+module.exports = Room;

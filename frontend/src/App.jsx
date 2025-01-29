@@ -13,15 +13,15 @@ const connectionOption={
 const socket=io(server,connectionOption);
 function App() {
   const [user,setuser]=useState(null);
-  useEffect(()=>{
-    socket.on("user is joined",(data)=>{
-      if(data.success){
-        console.log("userjoin");
-      }else{
-        console.log("Not join")
-      }
-    })
-  },[])
+  // useEffect(()=>{
+  //   socket.on("user is joined",(data)=>{
+  //     if(data.success){
+  //       console.log("userjoin");
+  //     }else{
+  //       console.log("Not join")
+  //     }
+  //   })
+  // },[])
   return (
     <Router>
       <Routes>
