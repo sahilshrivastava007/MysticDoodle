@@ -8,8 +8,9 @@ import CanvasSetting from '../components/CanvasSetting';
 import PenSetting from '../components/PenSetting';
 import CanvasColor from '../components/CanvasColor';
 import FillFeatureCanvas from '../components/FillFeatureCanvas';
+import ChatSection from '../components/ChatSection';
 
-export default function Whiteboard() {
+export default function Whiteboard({users}) {
     const canvasRef = useRef(null);
     const [canvas, setCanvas] = useState(null);
     const [selectedObject, setSelectedObject] = useState(null);
@@ -180,8 +181,12 @@ export default function Whiteboard() {
     };
    
     return (
-        <div className='App'>
-            <div className='Toolbar darkmode'>
+
+        <div className=' absolute flex flex-col items-center'>
+            <div className='bg-red-500 w-[70vw] h-[10vh]'>Connected Users: {users.length}</div>
+        <div className=' flex'>
+        <div className='h-[80vh] flex justify-between items-center w-[10vw] bg-pink-700'>
+         <div className='Toolbar darkmode'>
             <IconButton onClick={toggleDrawingMode} variant="ghost" size="medium">
                     <PenIcon color={isDrawingMode ? 'white' : 'gray'} />
             </IconButton>
@@ -219,14 +224,24 @@ export default function Whiteboard() {
                 )}
                
             </div>
-            <canvas id='canvas' ref={canvasRef} />
-            <div className='Settings-wrapper'>
-                <Setting canvas={canvas} />
+         </div>
+           <div className='h-[80vh] overflow-hidden w-[65vw] flex justify-center items-center bg-green-600'>
+           <canvas  ref={canvasRef} className='max-w-full max-h-full ' />
+           </div>
+         
+         <div className='h-[80vh] w-[25vw] bg-orange-400 '>
+         <div className='Settings-wrapper w-full flex flex-col h-[40%]'>
+                <Setting  canvas={canvas} />
                 <CanvasSetting canvas={canvas} />
                 <PenSetting canvas={canvas} />
             </div>
+         <ChatSection />
+         </div>
+        </div>
             
-            <CanvasColor canvas={canvas}/>
+            
+            <CanvasColor  canvas={canvas}/>
+        
         </div>
     );
 }

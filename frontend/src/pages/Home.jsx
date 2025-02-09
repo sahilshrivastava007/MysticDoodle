@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios"
 
 const Home = ({ socket, setuser }) => {
   const [roomid, setroomid] = useState('');
@@ -11,10 +12,22 @@ const Home = ({ socket, setuser }) => {
   const [errorMessage1, setErrorMessage1] = useState('');
   const navigate = useNavigate();
 
-  const generateRoomID = () => {
+  const generateIds = () => {
     const idd = Math.random().toString(36).substring(2, 8).toUpperCase();
     setroomid(idd);
+    
   };
+  
+  const generateUserID = (username = "") => {
+    const timestamp = Date.now().toString(36); // Convert timestamp to base36
+    const randomStr = Math.random().toString(36).substring(2, 8); // Random string
+    const userPart = username ? username.substring(0, 4).toLowerCase() : "usr"; // Take first 4 letters of username
+    
+    return `${userPart}-${timestamp}-${randomStr}`;
+  };
+  
+
+  
 
   const handleCreateroom = (e) => {
     e.preventDefault();
@@ -36,21 +49,25 @@ const Home = ({ socket, setuser }) => {
       host: true,  // Indicating that the user is the host
       presenter: true,
       username,
-      roomName
+      roomName,
+      userId:generateUserID()
     };
   
-    setuser(roomdata);
-  
+   
+  console.log(roomdata)
+  setuser(roomdata);
     // Emit 'userjoin' event to create the room
     socket.emit('userjoin', roomdata);
+    navigate(`/${roomid}`);
   
     // Listen for the response from the server
-    navigate(`/${roomid}`);
+   
     
   };
   
-  const handleJoinroom = (e) => {
+  const handleJoinroom =async (e) => {
     e.preventDefault();
+    console.log("clickedd")
   
     if (!userplayname.trim()) {
       setErrorMessage1('Please enter a username');
@@ -63,22 +80,24 @@ const Home = ({ socket, setuser }) => {
     }
   
     setErrorMessage('');
+ 
   
     const roomdata = {
       roomid: checkid,
       host: false,
       presenter: false,
       username: userplayname,  // Ensure this matches the value from your input
-      roomName: "",  // Room name if provided
+      roomName: "",
+      userId:generateUserID()  // Room name if provided
     };
-  
     setuser(roomdata);
-  
-    // Emit the 'userjoin' event to the backend
+    // Emit 'userjoin' event to create the room
     socket.emit('userjoin', roomdata);
-  
     navigate(`/${checkid}`);
-  };
+  
+  
+   
+  }
   
   
 
@@ -130,7 +149,7 @@ const Home = ({ socket, setuser }) => {
                 placeholder="Generated room ID"
               />
               <button
-                onClick={generateRoomID}
+                onClick={generateIds}
                 type="button"
                 className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-2"
               >
