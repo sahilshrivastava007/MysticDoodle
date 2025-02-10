@@ -8,7 +8,7 @@ let users=[];
     return users.filter((user) => user.roomid === roomid); 
 }
  const removeUser=({id})=>{
-    return users.filter((user) => user.roomid === roomid); 
+    return users.filter((user) => user.userId === id); 
 
     return users;
 }

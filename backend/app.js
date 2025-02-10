@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 const cors = require('cors');
-const { addUser } = require("./utils/users");
+const { addUser, getUser, removeUser } = require("./utils/users");
 
 // Initialize dotenv to load environment variables
 dotenv.config();
@@ -75,6 +75,20 @@ io.on("connection", (socket) => {
       imgsrc: imgurl
     })
   });
+  socket.on("message",(data)=>{
+    const {message}=data;
+    const user=getUser(socket.id);
+    if(user){
+      socket.broadcast.to(globalroomid).emit("messageresponse",{message,user:user.username});
+    }
+  })
+  socket.on("disconnect",()=>{
+    const user=getUser(socket.id);
+    if(user){
+      removeUser(socket.id);
+      socket.broadcast.to(globalroomid).emit("userleft",{user:user.username});
+    }
+  })
   socket.on("whiteboardData", (data) => {
     imgurl = data;
     socket.broadcast.to(globalroomid).emit("whiteboardDataResponse", {

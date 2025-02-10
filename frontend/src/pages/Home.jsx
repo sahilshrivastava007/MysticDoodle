@@ -50,7 +50,7 @@ const Home = ({ socket, setuser }) => {
       presenter: true,
       username,
       roomName,
-      userId:generateUserID()
+      userId:socket.id
     };
   
    
@@ -88,7 +88,7 @@ const Home = ({ socket, setuser }) => {
       presenter: false,
       username: userplayname,  // Ensure this matches the value from your input
       roomName: "",
-      userId:generateUserID()  // Room name if provided
+      userId:socket.id  // Room name if provided
     };
     setuser(roomdata);
     // Emit 'userjoin' event to create the room

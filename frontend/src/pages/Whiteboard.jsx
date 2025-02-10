@@ -10,7 +10,7 @@ import CanvasColor from '../components/CanvasColor';
 import FillFeatureCanvas from '../components/FillFeatureCanvas';
 import ChatSection from '../components/ChatSection';
 
-export default function Whiteboard({users}) {
+export default function Whiteboard({users,socket}) {
     const canvasRef = useRef(null);
     const [canvas, setCanvas] = useState(null);
     const [selectedObject, setSelectedObject] = useState(null);
@@ -229,15 +229,15 @@ export default function Whiteboard({users}) {
            <canvas  ref={canvasRef} className='max-w-full max-h-full ' />
            </div>
          
-         <div className='h-[80vh] w-[25vw] bg-orange-400 '>
+         <div className='h-[80vh] w-[25vw]  '>
          <div className='Settings-wrapper w-full flex flex-col h-[40%]'>
                 <Setting  canvas={canvas} />
                 <CanvasSetting canvas={canvas} />
                 <PenSetting canvas={canvas} />
             </div>
-         <ChatSection />
          </div>
         </div>
+         <ChatSection socket={socket} />
             
             
             <CanvasColor  canvas={canvas}/>
