@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Bgmusic from '../components/Bgmusic';
 
 const Home = ({ socket, setuser }) => {
   const [roomid, setroomid] = useState('');
@@ -191,6 +192,7 @@ const Home = ({ socket, setuser }) => {
           </form>
         </div>
       </div>
+      <Bgmusic/>
     </div>
   );
 };

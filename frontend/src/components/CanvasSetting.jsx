@@ -49,7 +49,7 @@ export default function CanvasSetting({ canvas }) {
     };
 
     return (
-        <div className="Settings darkmode">
+        <div className="w-full p-[1px] box-border rounded text-center darkmode">
             <Input
                 fluid
                 label="Canvas Width"

@@ -8,6 +8,7 @@ import CanvasSetting from '../components/CanvasSetting';
 import PenSetting from '../components/PenSetting';
 import CanvasColor from '../components/CanvasColor';
 import FillFeatureCanvas from '../components/FillFeatureCanvas';
+import GameNav from '../components/GameNav';
 
 export default function Whiteboard() {
     const canvasRef = useRef(null);
@@ -180,8 +181,11 @@ export default function Whiteboard() {
     };
    
     return (
-        <div className='App'>
-            <div className='Toolbar darkmode'>
+        <>
+        <div className="font-sans text-center flex flex-col items-center justify-start px-4 py-16 sm:py-24 md:py-32 lg:py-40 bg-gray-200 min-h-screen w-full overflow-hidden">
+
+        <div className="fixed left-4 top-1/2 -translate-y-1/2 flex-col gap-2 bg-neutral-200 dark:bg-neutral-800 p-2 rounded darkmode hidden sm:flex">
+
             <IconButton onClick={toggleDrawingMode} variant="ghost" size="medium">
                     <PenIcon color={isDrawingMode ? 'white' : 'gray'} />
             </IconButton>
@@ -220,13 +224,15 @@ export default function Whiteboard() {
                
             </div>
             <canvas id='canvas' ref={canvasRef} />
-            <div className='Settings-wrapper'>
-                <Setting canvas={canvas} />
-                <CanvasSetting canvas={canvas} />
-                <PenSetting canvas={canvas} />
-            </div>
+            <div className="fixed right-4 top-1/2 -translate-y-1/2 flex-col gap-2 bg-black p-4 rounded text-left box-border hidden sm:flex">
+    <Setting canvas={canvas} />
+    <CanvasSetting canvas={canvas} />
+    <PenSetting canvas={canvas} />
+</div>
+
             
             <CanvasColor canvas={canvas}/>
         </div>
+        </>
     );
 }

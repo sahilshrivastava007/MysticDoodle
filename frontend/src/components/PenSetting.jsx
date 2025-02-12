@@ -55,7 +55,7 @@ export default function PenSetting({ canvas }) {
 
 
     return (
-        <div className='Settings butmp darkmode'>
+        <div className='w-full p-[1px] box-border rounded text-center butmp darkmode'>
             
             <Input
                 fluid

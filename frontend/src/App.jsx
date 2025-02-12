@@ -3,6 +3,10 @@ import Whiteboard from './pages/Whiteboard';
 import Home from './pages/Home';
 import io from "socket.io-client"
 import { useEffect, useState } from 'react';
+import WordRandom from './components/WordRandom';
+import GameSetting from './components/GameSetting';
+import GameNav from './components/GameNav';
+import Room from './pages/Room';
 const server="http://localhost:3001"
 const connectionOption={
   "force new connection":true,
@@ -26,7 +30,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home  socket={socket} setuser={setuser}/>} />
-        <Route path="/:roomid" element={<Whiteboard />} />
+        <Route path="/:roomid" element={<Room/>} />
+        <Route path="/nav" element={<GameNav/>} />
       </Routes>
     </Router>
   );

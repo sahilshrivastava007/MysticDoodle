@@ -35,56 +35,23 @@ export default function CanvasColor({canvas}) {
     
   return (
     <div className='mt-4 mb-4'>
-    <div className="flex items-center mb-4 space-x-4"> {/* Flex container to align items horizontally with spacing */}
-      <IconButton className="" onClick={togglefill} variant="ghost" size="medium">
-        <BlendingModeIcon color={fillon && !canvas.isDrawingMode ? 'black' : 'gray'} />
-      </IconButton>
-      <div className="grid grid-cols-20 gap-2">
-        <div className="w-10 h-10" style={{ backgroundColor: "#4169E1" }} onClick={() => funcColor("#4169E1")}></div> {/* Royal Blue */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#602F6B" }} onClick={() => funcColor("#602F6B")}></div> {/* Imperial Purple */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#DC143C" }} onClick={() => funcColor("#DC143C")}></div> {/* Crimson Red */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#FFD700" }} onClick={() => funcColor("#FFD700")}></div> {/* Golden Yellow */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#50C878" }} onClick={() => funcColor("#50C878")}></div> {/* Emerald Green */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#9B111E" }} onClick={() => funcColor("#9B111E")}></div> {/* Ruby Red */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#0F52BA" }} onClick={() => funcColor("#0F52BA")}></div> {/* Sapphire Blue */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#9966CC" }} onClick={() => funcColor("#9966CC")}></div> {/* Amethyst Purple */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#C0C0C0" }} onClick={() => funcColor("#C0C0C0")}></div> {/* Silver */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#FFFFF0" }} onClick={() => funcColor("#FFFFF0")}></div> {/* Ivory */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#800020" }} onClick={() => funcColor("#800020")}></div> {/* Burgundy */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#F7E7CE" }} onClick={() => funcColor("#F7E7CE")}></div> {/* Champagne */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#36454F" }} onClick={() => funcColor("#36454F")}></div> {/* Charcoal Gray */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#FFD700" }} onClick={() => funcColor("#FFD700")}></div> {/* Royal Gold */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#353839" }} onClick={() => funcColor("#353839")}></div> {/* Onyx Black */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#96A8A1" }} onClick={() => funcColor("#96A8A1")}></div> {/* Pewter Gray */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#40E0D0" }} onClick={() => funcColor("#40E0D0")}></div> {/* Turquoise */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#B0C4DE" }} onClick={() => funcColor("#B0C4DE")}></div> {/* Light Steel Blue */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#8B0000" }} onClick={() => funcColor("#8B0000")}></div> {/* Dark Red */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#483D8B" }} onClick={() => funcColor("#483D8B")}></div> {/* Dark Slate Blue */}
-        <div className="w-10 h-10" style={{ backgroundColor: "#A52A2A" }} onClick={() => funcColor("#A52A2A")}></div> {/* Brown */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#556B2F" }} onClick={() => funcColor("#556B2F")}></div> {/* Dark Olive Green */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#8B4513" }} onClick={() => funcColor("#8B4513")}></div> {/* Saddle Brown */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#FAFAD2" }} onClick={() => funcColor("#FAFAD2")}></div> {/* Light Goldenrod Yellow */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#708090" }} onClick={() => funcColor("#708090")}></div> {/* Slate Gray */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#D2691E" }} onClick={() => funcColor("#D2691E")}></div> {/* Chocolate */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#7FFF00" }} onClick={() => funcColor("#7FFF00")}></div> {/* Chartreuse */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#6A5ACD" }} onClick={() => funcColor("#6A5ACD")}></div> {/* Slate Blue */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#9932CC" }} onClick={() => funcColor("#9932CC")}></div> {/* Dark Orchid */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#FF69B4" }} onClick={() => funcColor("#FF69B4")}></div> {/* Hot Pink */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#2F4F4F" }} onClick={() => funcColor("#2F4F4F")}></div> {/* Dark Slate Gray */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#BC8F8F" }} onClick={() => funcColor("#BC8F8F")}></div> {/* Rosy Brown */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#4682B4" }} onClick={() => funcColor("#4682B4")}></div> {/* Steel Blue */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#F4A460" }} onClick={() => funcColor("#F4A460")}></div> {/* Sandy Brown */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#FFDAB9" }} onClick={() => funcColor("#FFDAB9")}></div> {/* Peach Puff */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#ADD8E6" }} onClick={() => funcColor("#ADD8E6")}></div> {/* Light Blue */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#DAA520" }} onClick={() => funcColor("#DAA520")}></div> {/* Goldenrod */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#9370DB" }} onClick={() => funcColor("#9370DB")}></div> {/* Medium Purple */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#BA55D3" }} onClick={() => funcColor("#BA55D3")}></div> {/* Medium Orchid */}
-      <div className="w-10 h-10" style={{ backgroundColor: "#3CB371" }} onClick={() => funcColor("#3CB371")}></div> {/* Medium Sea Green */}
-      </div>
-    </div>
-  
-   
+  <div className="flex flex-wrap items-center mb-4 space-x-4"> 
+    <IconButton onClick={togglefill} variant="ghost" size="medium">
+      <BlendingModeIcon color={fillon && !canvas.isDrawingMode ? 'black' : 'gray'} />
+    </IconButton>
   </div>
+  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
+    {["#4169E1", "#602F6B", "#DC143C", "#FFD700", "#50C878", "#9B111E", "#0F52BA", "#9966CC", "#C0C0C0", "#FFFFF0",
+      "#800020", "#F7E7CE", "#36454F", "#FFD700", "#353839", "#96A8A1", "#40E0D0", "#B0C4DE", "#8B0000", "#483D8B",
+      "#A52A2A", "#556B2F", "#8B4513", "#FAFAD2", "#708090", "#D2691E", "#7FFF00", "#6A5ACD", "#9932CC", "#FF69B4",
+      "#2F4F4F", "#BC8F8F", "#4682B4", "#F4A460", "#FFDAB9", "#ADD8E6", "#DAA520", "#9370DB", "#BA55D3", "#3CB371"].map(color => (
+        <div key={color} className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 cursor-pointer" 
+             style={{ backgroundColor: color }} onClick={() => funcColor(color)}>
+        </div>
+    ))}
+  </div>
+</div>
+
   
 
   )

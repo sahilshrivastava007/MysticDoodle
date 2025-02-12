@@ -162,7 +162,7 @@ export default function Setting({ canvas }) {
     };
 
     return (
-        <div className='Settings upmp darkmode'>
+        <div className='w-full p-[1px] box-border rounded text-center upmp darkmode'>
             {selectedObject?.type === 'rect' && (
                 <>
                     <Input
