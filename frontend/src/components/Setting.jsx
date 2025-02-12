@@ -162,14 +162,15 @@ export default function Setting({ canvas }) {
     };
 
     return (
-        <div className='Settings upmp darkmode'>
+        <div className='Settings w-full darkmode'>
             {selectedObject?.type === 'rect' && (
                 <>
-                    <Input
+                    <Input 
                         fluid
                         label="Width"
                         value={width}
                         onChange={handleWidthChange}
+                        className="w-full"
                     />
                     <Input
                         fluid

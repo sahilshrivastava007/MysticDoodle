@@ -8,22 +8,11 @@ body {
   width: max-content;
 }
 
-.App {
-  font-family: sans-serif;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-direction: column;
-  padding: 100px 16px;
-  background-color: var(--gray-200);
-  min-height: 100vh;
-  height: 100%;
-}
+
 
 #canvas {
   border: 1px solid var(--border-neutral-subtle);
-  z-index: 2;
+  z-index: 0;
 }
 
 .lower-canvas {
@@ -37,8 +26,7 @@ body {
   padding: 8px 8px;
   border-radius: 4px;
   position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
+
   left: 16px;
 
   &:empty {
@@ -47,10 +35,9 @@ body {
 }
 /* Wrapper for the Settings container */
 .Settings-wrapper {
-position: fixed;
-right: 16px;
-top: 50%;
-transform: translateY(-50%);
+
+
+
 gap: 8px; /* Space between elements */
 display: flex;
 flex-direction: column;
@@ -63,7 +50,7 @@ box-sizing: border-box;
 
 /* Individual Settings elements */
 .Settings {
-width: 100%; /* Ensures elements take full width */
+ /* Ensures elements take full width */
 padding: 1px;
 box-sizing: border-box;
 border-radius: 4px;

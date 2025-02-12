@@ -49,12 +49,13 @@ export default function CanvasSetting({ canvas }) {
     };
 
     return (
-        <div className="Settings darkmode">
+        <div className="Settings darkmode ">
             <Input
                 fluid
                 label="Canvas Width"
                 value={canvasWidth}
                 onChange={handleWidthChange}
+                classNamew="w-full"
             />
             <Input
                 fluid
