@@ -1,238 +1,406 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Canvas, Rect, Circle, Triangle, Line, PencilBrush } from 'fabric'; 
-import { IconButton } from "blocksin-system";
-import { TrashIcon,ReloadIcon,SquareIcon,TransformIcon, CircleIcon, TriangleIcon, BorderSolidIcon, Cross1Icon, PenIcon ,UndoIcon} from "sebikostudio-icons";
-import '../assets/style/Dialog.scss';
-import Setting from '../components/Setting';
-import CanvasSetting from '../components/CanvasSetting';
-import PenSetting from '../components/PenSetting';
-import CanvasColor from '../components/CanvasColor';
-import FillFeatureCanvas from '../components/FillFeatureCanvas';
-import GameNav from '../components/GameNav';
+import React, { useRef, useState, useEffect } from "react";
+import ChatSection from "../components/ChatSection";
 
-export default function Whiteboard() {
-    const canvasRef = useRef(null);
-    const [canvas, setCanvas] = useState(null);
-    const [selectedObject, setSelectedObject] = useState(null);
-    const [isDrawingMode, setIsDrawingMode] = useState(false); 
-    const [isEraserMode, setIsEraserMode] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false); 
-    const [history, setHistory] = useState([]);
-    // const [currentStep, setCurrentStep] = useState(0);
+const Whiteboard = ({users,socket}) => {
+  const canvasRef = useRef(null);
+  const [context, setContext] = useState(null);
+  const [isPainting, setIsPainting] = useState(false);
+  const [mousePosition, setMousePosition] = useState(undefined);
+  const [color, setColor] = useState("#000000");
+  const [startPoint, setStartPoint] = useState(null);
+  const [lines, setLines] = useState([]);
+  const [straightLineMode, setStraightLineMode] = useState(false);
+  const [radius, setRadius] = useState(5);
+  const [isEraser, setIsEraser] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.7;
+      const ctx = canvas.getContext("2d");
+      ctx.lineCap = "round";
+      ctx.lineWidth = radius;
+      ctx.strokeStyle = color;
+      setContext(ctx);
+      redrawCanvas();
+    };
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === "z") undo();
+      if (e.ctrlKey && e.key === "y") redo();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (context) {
+      context.lineWidth = radius;
+      context.strokeStyle = isEraser ? "#FFFFFF" : color;
+    }
+  }, [color, radius, context, isEraser]);
+
+  const startPaint = (event) => {
+    const coordinates = getCoordinates(event);
+    if (coordinates) {
+      setIsPainting(true);
+      setMousePosition(coordinates);
+      if (straightLineMode) setStartPoint(coordinates);
+    }
+  };
+
+  const paint = (event) => {
+    if (!isPainting || straightLineMode) return;
+    const newMousePosition = getCoordinates(event);
+    if (mousePosition && newMousePosition) {
+      drawLine(newMousePosition);
+      setMousePosition(newMousePosition);
+    }
+  };
+
+  const exitPaint = () => {
+    setIsPainting(false);
+    setMousePosition(undefined);
+    setStartPoint(null);
+  };
+
+  const getCoordinates = (event) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  };
+
+  const drawLine = (position) => {
+    context.beginPath();
+    context.moveTo(mousePosition.x, mousePosition.y);
+    context.lineTo(position.x, position.y);
+    context.stroke();
+    const newLine = { start: mousePosition, end: position, color, radius };
+    setLines((prev) => [...prev, newLine]);
+  };
+
+  const handleMouseUp = (event) => {
+    if (straightLineMode && startPoint) drawStraightLine(event);
+    exitPaint();
+  };
+
+  const drawStraightLine = (event) => {
+    if (straightLineMode && startPoint) {
+      const endPoint = getCoordinates(event);
+      context.beginPath();
+      context.moveTo(startPoint.x, startPoint.y);
+      context.lineTo(endPoint.x, endPoint.y);
+      context.stroke();
+      const newLine = { start: startPoint, end: endPoint, color, radius };
+      setLines((prev) => [...prev, newLine]);
+    }
+  };
+
+  const fillCanvas = () => {
+    if (!context) return;
+    context.fillStyle = color;
+    context.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    setLines((prev) => [
+      ...prev,
+      {
+        type: "fill",
+        color,
+        x: 0,
+        y: 0,
+        width: canvasRef.current.width,
+        height: canvasRef.current.height,
+      },
+    ]);
+  };
+
+  const clearCanvas = () => {
+    if (!context) return;
+    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    setLines([]);
+    setHistory([]);
+  };
+
+  const undo = () => {
+    if (lines.length > 0) {
+      setHistory((prev) => [...prev, lines[lines.length - 1]]);
+      setLines((prev) => prev.slice(0, -1));
+      redrawCanvas();
+    }
+  };
+
+  const redo = () => {
+    if (history.length > 0) {
+      setLines((prev) => [...prev, history[history.length - 1]]);
+      setHistory((prev) => prev.slice(0, -1));
+      redrawCanvas();
+    }
+  };
+
+  const redrawCanvas = () => {
+    if (!context) return;
+    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    lines.forEach((line) => {
+      if (line.type === "fill") {
+        context.fillStyle = line.color;
+        context.fillRect(line.x, line.y, line.width, line.height);
+      } else {
+        context.strokeStyle = line.color;
+        context.lineWidth = line.radius;
+        context.beginPath();
+        context.moveTo(line.start.x, line.start.y);
+        context.lineTo(line.end.x, line.end.y);
+        context.stroke();
+      }
+    });
+  };
+
+  const scribbleColors = [
+    "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4",
+    "#FFEEAD", "#D4A5A5", "#9B59B6", "#3498DB",
+    "#E74C3C", "#2ECC71",
+  ];
+
+  return (
    
-    useEffect(() => {
-        if (canvasRef.current) {
-            const initCanvas = new Canvas(canvasRef.current, {
-                width: 500,
-                height: 500,
-                selection: true,  
-            });
-            
-            const brush = new PencilBrush(initCanvas);
-            brush.color = "#000000";  
-            brush.width = 5;
-    
-            initCanvas.freeDrawingBrush = brush;
-            initCanvas.backgroundColor = '#fff';
-            initCanvas.renderAll();
-            setCanvas(initCanvas);
+    <div style={{
+      minHeight: "100vh",
+      background: "#FFF5E6",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      fontFamily: "'Comic Sans MS', 'Chalkboard SE', cursive",
+    }}>
+        <div className='bg-red-500 w-[70vw] h-[10vh]'>Connected Users: {users.length}</div>
+      <div style={{
+        width: "90%",
+        maxWidth: "1000px",
+        background: "rgba(255, 255, 255, 0.8)",
+        borderRadius: "20px",
+        padding: "20px",
+        border: "3px dashed #FF9F1C",
+        marginBottom: "20px",
+      }}>
+        <h2 style={{
+          textAlign: "center",
+          color: "#FF6B6B",
+          margin: "0 0 15px 0",
+          fontSize: "24px",
+          textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
+        }}>
+          Scribble Time!
+        </h2>
 
+        <div style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "15px",
+          justifyContent: "center",
+          alignItems: "center",
+        }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+            {scribbleColors.map((c) => (
+              <button
+                key={c}
+                style={{
+                  backgroundColor: c,
+                  width: "40px",
+                  height: "40px",
+                  border: `3px solid ${c === color ? "#FFF" : "#FFD700"}`,
+                  borderRadius: "50%",
+                  cursor: "pointer",
+                  transition: "transform 0.2s",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                }}
+                onClick={() => setColor(c)}
+                onMouseEnter={(e) => e.target.style.transform = "scale(1.2) rotate(5deg)"}
+                onMouseLeave={(e) => e.target.style.transform = "scale(1) rotate(0)"}
+              />
+            ))}
+          </div>
 
-            initCanvas.on('object:selected', (e) => {
-                setSelectedObject(e.target); 
-            });
-    
-            initCanvas.on('selection:cleared', () => {
-                setSelectedObject(null);  
-            });
-            
-            
-            // saveState(initCanvas);
-            return () => {
-                initCanvas.dispose();
-            }
-        }
-    }, []);
-    const toggleDrawingMode = () => {
-        if (canvas) {
-            setIsDrawingMode((prev) => {
-                const newMode = !prev;
-                canvas.isDrawingMode = newMode; 
-                return newMode;
-            });
-        }
-    };
+          <div style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "10px",
+            alignItems: "center",
+          }}>
+            <button
+              style={{
+                padding: "12px 20px",
+                background: isEraser ? "#FF4444" : "#4ECDC4",
+                color: "white",
+                border: "2px solid #FFD700",
+                borderRadius: "15px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                fontSize: "16px",
+                fontWeight: "bold",
+              }}
+              onClick={() => setIsEraser(!isEraser)}
+              onMouseEnter={(e) => e.target.style.transform = "scale(1.1)"}
+              onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+            >
+              {isEraser ? "✏️ Draw" : "🧹 Erase"}
+            </button>
 
-    const addShape = (shape) => {
-        if (canvas) {
-            canvas.isDrawingMode = false; 
-            canvas.add(shape);
-            canvas.renderAll();  
-            
-            canvas.isDrawingMode = isDrawingMode;  
-        }
-    };
+            <button
+              style={{
+                padding: "12px 20px",
+                background: straightLineMode ? "#96CEB4" : "#FFEEAD",
+                color: straightLineMode ? "white" : "#333",
+                border: "2px solid #FFD700",
+                borderRadius: "15px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                fontSize: "16px",
+                fontWeight: "bold",
+              }}
+              onClick={() => setStraightLineMode(!straightLineMode)}
+              onMouseEnter={(e) => e.target.style.transform = "scale(1.1)"}
+              onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+            >
+              {straightLineMode ? "✍️ Free" : "📏 Line"}
+            </button>
 
-    const addRectangle = () => {
-        const rect = new Rect({
-            top: 100,
-            left: 50,
-            width: 100,
-            height: 60,
-            fill: '#D84D42',
-        });
-        addShape(rect);
-    };
+            <button
+              style={{
+                padding: "12px 20px",
+                background: "#D4A5A5",
+                color: "white",
+                border: "2px solid #FFD700",
+                borderRadius: "15px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                fontSize: "16px",
+                fontWeight: "bold",
+              }}
+              onClick={fillCanvas}
+              onMouseEnter={(e) => e.target.style.transform = "scale(1.1)"}
+              onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+            >
+              🎨 Fill
+            </button>
 
-    const addCircle = () => {
-        const circle = new Circle({
-            top: 200,
-            left: 100,
-            radius: 50,
-            fill: '#4287f5',
-        });
-        addShape(circle);
-    };
-
-    const addTriangle = () => {
-        const triangle = new Triangle({
-            top: 150,
-            left: 200,
-            width: 100,
-            height: 100,
-            fill: '#4287f5',
-        });
-        addShape(triangle);
-    };
-
-    const addLine = () => {
-        const x1 = Math.random() * 500;
-        const y1 = Math.random() * 500;
-        const x2 = Math.random() * 500;
-        const y2 = Math.random() * 500;
-
-        const line = new Line([x1, y1, x2, y2], {
-            stroke: '#4287f5',
-            strokeWidth: 2,
-        });
-
-        addShape(line);
-    };
-
-    const removeSelectedObject = () => {
-        if (canvas && selectedObject) {
-            canvas.remove(selectedObject);
-            canvas.renderAll();
-            setSelectedObject(null);
-            // saveState(canvas); 
-        }
-    };
-
-    const clearCanvas = () => {
-        if (canvas) {
-            // saveState(canvas); 
-            canvas.getObjects().forEach(obj => {
-                setHistory(prevHistory => [...prevHistory, obj]);
-                canvas.remove(obj);
-            });
-            canvas.renderAll();
-            setSelectedObject(null);
-        }
-    };
-
-    // const saveState = (canvas) => {
-    //     const canvasState = JSON.stringify(canvas.toJSON());
-    //     // If we're not at the end, discard forward steps before saving
-    //     if (currentStep < history.length - 1) {
-    //         setHistory(history.slice(0, currentStep + 1));  // Truncate history to current step
-    //     }
-    //     setHistory(prevHistory => [...prevHistory, canvasState]);  // Add the new state
-    //     setCurrentStep(currentStep + 1);  // Update the current step pointer
-    // };
-    
-    // Undo functionality
-    const undo = () => {
-        if (canvas) {
-            let recentObject = canvas.item(canvas.size() - 1);
-            setHistory(prevHistory => [...prevHistory, recentObject]); // No need to wrap in array
-            canvas.remove(recentObject);
-            canvas.renderAll();
-            setSelectedObject(null);
-        }
-    };
-    
-    const redo = () => {
-        if (history.length > 0) {
-            // Get the most recent item from history
-            const objectToRedo = history[history.length - 1];
-            
-            canvas.add(objectToRedo);
-            canvas.renderAll();
-            
-            // Remove the object from history (it's now been redone)
-            setHistory(prevHistory => prevHistory.slice(0, -1)); // Remove the last item
-    
-            setSelectedObject(null);
-        }
-    };
-    
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-   
-    return (
-        <>
-        <div className="font-sans text-center flex flex-col items-center justify-start px-4 py-16 sm:py-24 md:py-32 lg:py-40 bg-gray-200 min-h-screen w-full overflow-hidden">
-
-        <div className="fixed left-4 top-1/2 -translate-y-1/2 flex-col gap-2 bg-neutral-200 dark:bg-neutral-800 p-2 rounded darkmode hidden sm:flex">
-
-            <IconButton onClick={toggleDrawingMode} variant="ghost" size="medium">
-                    <PenIcon color={isDrawingMode ? 'white' : 'gray'} />
-            </IconButton>
-                
-                <IconButton onClick={clearCanvas} variant="ghost" size="medium">
-                    <TrashIcon />
-                </IconButton>
-                
-
-                <IconButton onClick={undo} variant="ghost" size="medium">
-                    <UndoIcon />
-                </IconButton>
-                <IconButton onClick={redo} variant="ghost" size="medium">
-                <ReloadIcon />
-                </IconButton>
-                <IconButton onClick={toggleMenu} variant="ghost" size="medium">
-                    <TransformIcon />
-                </IconButton>
-                {/* Only show the menu buttons when isMenuOpen is true */}
-                {isMenuOpen && (
-                    <div className="menuOptions darkmode">
-                        <IconButton onClick={addRectangle} variant="ghost" size="medium">
-                            <SquareIcon />
-                        </IconButton>
-                        <IconButton onClick={addCircle} variant="ghost" size="medium">
-                            <CircleIcon />
-                        </IconButton>
-                        <IconButton onClick={addTriangle} variant="ghost" size="medium">
-                            <TriangleIcon />
-                        </IconButton>
-                        <IconButton onClick={addLine} variant="ghost" size="medium">
-                            <BorderSolidIcon />
-                        </IconButton>
-                    </div>
-                )}
-               
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              background: "#FFEEAD",
+              padding: "10px",
+              borderRadius: "15px",
+              border: "2px solid #FFD700",
+            }}>
+              <input
+                type="range"
+                min="2"
+                max="20"
+                value={radius}
+                onChange={(e) => setRadius(parseInt(e.target.value))}
+                style={{
+                  width: "100px",
+                  cursor: "pointer",
+                  accentColor: color,
+                }}
+              />
+              <span style={{ color: "#333", fontSize: "16px" }}>
+                {radius}
+              </span>
             </div>
-            <canvas id='canvas' ref={canvasRef} />
-            <div className="fixed right-4 top-1/2 -translate-y-1/2 flex-col gap-2 bg-black p-4 rounded text-left box-border hidden sm:flex">
-    <Setting canvas={canvas} />
-    <CanvasSetting canvas={canvas} />
-    <PenSetting canvas={canvas} />
-</div>
 
-            
-            <CanvasColor canvas={canvas}/>
+            <button
+              style={{
+                padding: "12px 20px",
+                background: "#FF6B6B",
+                color: "white",
+                border: "2px solid #FFD700",
+                borderRadius: "15px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                fontSize: "16px",
+                fontWeight: "bold",
+              }}
+              onClick={clearCanvas}
+              onMouseEnter={(e) => e.target.style.transform = "scale(1.1)"}
+              onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+            >
+              🗑️ Clear
+            </button>
+
+            <button
+              style={{
+                padding: "12px 20px",
+                background: "#3498DB",
+                color: "white",
+                border: "2px solid #FFD700",
+                borderRadius: "15px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                fontSize: "16px",
+                fontWeight: "bold",
+                opacity: lines.length === 0 ? 0.5 : 1,
+              }}
+              onClick={undo}
+              disabled={lines.length === 0}
+              onMouseEnter={(e) => e.target.style.transform = lines.length > 0 ? "scale(1.1)" : "scale(1)"}
+              onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+            >
+              ⬅️ Undo
+            </button>
+
+            <button
+              style={{
+                padding: "12px 20px",
+                background: "#9B59B6",
+                color: "white",
+                border: "2px solid #FFD700",
+                borderRadius: "15px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                fontSize: "16px",
+                fontWeight: "bold",
+                opacity: history.length === 0 ? 0.5 : 1,
+              }}
+              onClick={redo}
+              disabled={history.length === 0}
+              onMouseEnter={(e) => e.target.style.transform = history.length > 0 ? "scale(1.1)" : "scale(1)"}
+              onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+            >
+              ➡️ Redo
+            </button>
+          </div>
         </div>
-        </>
-    );
-}
+      </div>
+//heleo ji
+      <canvas
+        ref={canvasRef}
+        onMouseDown={startPaint}
+        onMouseMove={paint}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={exitPaint}
+        style={{
+          borderRadius: "15px",
+          backgroundColor: "white",
+          border: "3px solid #FF9F1C",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+          cursor: isEraser ? "cell" : straightLineMode ? "crosshair" : "default",
+          touchAction: "none",
+        }}
+      />
+        <ChatSection socket={socket} />
+    </div>
+  );
+};
+
+export default Whiteboard;

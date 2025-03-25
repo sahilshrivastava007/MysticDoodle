@@ -19,12 +19,10 @@ const roomSchema = new mongoose.Schema({
     type: String,
     required: false
   },
-  players: [{
-    type: String // List of player usernames in the room
-  }],
+  players: []
 });
 
 // Create the model
-const Room = mongoose.model('Room', roomSchema);
+const RoomModel = mongoose.model('Room', roomSchema);
 
-module.exports = Room;
+module.exports = RoomModel;

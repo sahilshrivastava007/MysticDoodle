@@ -1,37 +1,55 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import Whiteboard from './pages/Whiteboard';
 import Home from './pages/Home';
 import io from "socket.io-client"
-import { useEffect, useState } from 'react';
-import WordRandom from './components/WordRandom';
-import GameSetting from './components/GameSetting';
-import GameNav from './components/GameNav';
-import Room from './pages/Room';
+import {  useEffect, useState } from 'react';
 const server="http://localhost:3001"
 const connectionOption={
   "force new connection":true,
-  reconnectionAttempts:"Infinty",
+  reconnectionAttempts:"Infinity",
   timeout:10000,
   transports:["websocket"]
 }
-const socket=io(server,connectionOption);
+
+
 function App() {
-  const [user,setuser]=useState(null);
-  // useEffect(()=>{
-  //   socket.on("user is joined",(data)=>{
-  //     if(data.success){
-  //       console.log("userjoin");
-  //     }else{
-  //       console.log("Not join")
-  //     }
-  //   })
-  // },[])
+const [user,setuser]=useState(null);
+const [socket, setSocket] = useState(null); 
+const [users, setUsers] = useState([])
+
+  useEffect(() => {   
+     const socketio = io(server, connectionOption);
+    setSocket(socketio);
+      socketio.on("userisjoined",(data)=>{
+        if(data.success){
+          console.log("userjoined")
+
+         setUsers(data.users)
+         console.log(users)
+    
+        console.log("joiiinifniif")
+
+        }else{
+          console.log("something went wrong");
+        }
+      })
+      socketio.on("allUsers",(data)=>{
+        console.log("joiiinifniif")
+        setUsers(data);
+
+      })
+     return () => {
+      
+     socketio.close();
+     }
+   }, [])
+ 
+ 
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home  socket={socket} setuser={setuser}/>} />
-        <Route path="/:roomid" element={<Room/>} />
-        <Route path="/nav" element={<GameNav/>} />
+        <Route path="/:roomid" element={<Whiteboard socket={socket} users={users} user={user} isPresenter={user?.presenter} />}  />
       </Routes>
     </Router>
   );
